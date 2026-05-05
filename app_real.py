@@ -37,7 +37,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── Groq client ───────────────────────────────────────────────────────────────
-GROQ_API_KEY = "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"
+GROQ_API_KEY = st.secrets["GROQ_API_KEY"]  
 client = Groq(api_key=GROQ_API_KEY)
 
 # ── Load data and models ──────────────────────────────────────────────────────
