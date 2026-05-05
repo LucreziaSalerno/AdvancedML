@@ -18,7 +18,6 @@ st.set_page_config(
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
-    
     html, body, [class*="css"] {
         font-family: 'Open Sans', sans-serif;
     }
@@ -118,8 +117,8 @@ fraud_filter = st.sidebar.multiselect(
 )
 
 severity_filter = st.sidebar.selectbox(
-    "Minimum Severity",
-    options=["All", "Medium and above", "High only"]
+    "Filter by Severity",
+    options=["All", "High only", "Medium only", "Low only"]
 )
 
 st.sidebar.divider()
@@ -192,8 +191,13 @@ filtered['severity'] = filtered['anomaly_score'].apply(get_severity)
 
 if severity_filter == "High only":
     filtered = filtered[filtered['anomaly_score'] < -0.25]
-elif severity_filter == "Medium and above":
-    filtered = filtered[filtered['anomaly_score'] < -0.10]
+elif severity_filter == "Medium only":
+    filtered = filtered[
+        (filtered['anomaly_score'] >= -0.25) &
+        (filtered['anomaly_score'] < -0.10)
+    ]
+elif severity_filter == "Low only":
+    filtered = filtered[filtered['anomaly_score'] >= -0.10]
 
 filtered = filtered.sort_values('anomaly_score', ascending=True).head(200)
 
@@ -223,61 +227,64 @@ st.divider()
 # ── Case deep dive ────────────────────────────────────────────────────────────
 st.subheader("🔍 Case Deep Dive — AI Explanation")
 
-selected_id = st.selectbox(
-    "Select a Prescriber ID to investigate:",
-    options=filtered['prescriber_id'].astype(str).unique()
-)
+if len(filtered) == 0:
+    st.warning("No cases match the current filters. Please adjust your selection.")
+else:
+    selected_id = st.selectbox(
+        "Select a Prescriber ID to investigate:",
+        options=filtered['prescriber_id'].astype(str).unique()
+    )
 
-if selected_id:
-    case = filtered[filtered['prescriber_id'].astype(str) == selected_id].iloc[0]
+    if selected_id:
+        case = filtered[filtered['prescriber_id'].astype(str) == selected_id].iloc[0]
 
-    col_a, col_b, col_c = st.columns(3)
-    with col_a:
-        st.metric("Drug", case['generic_name'])
-        st.metric("Fraud Type", case['fraud_type'].replace('_', ' ').title())
-    with col_b:
-        st.metric("Total Claims", f"{int(case['total_claims']):,}")
-        st.metric("Total Cost", f"${float(case['total_cost']):,.2f}")
-    with col_c:
-        st.metric("Total Patients", f"{int(case['total_patients']):,}")
-        st.metric("Severity", get_severity(case['anomaly_score']))
-
-    st.divider()
-
-    if st.button("🤖 Generate AI Explanation", type="primary"):
-        with st.spinner("Analyzing case and retrieving regulatory references..."):
-            fraud_type = case['fraud_type']
-            drug = case['generic_name']
-            specialty = case['specialty']
-
-            if fraud_type == 'volume_fraud':
-                query = f"abnormal high prescription volume reporting {drug}"
-            elif fraud_type == 'cost_fraud':
-                query = f"fraud reimbursement cost pharmaceutical {drug}"
-            else:
-                query = f"off-label prescription {drug} {specialty}"
-
-            regulation, reg_source = retrieve_regulation(query)
-            explanation = generate_explanation(case, regulation, reg_source)
-
-        st.success("Analysis complete!")
-
-        st.markdown("#### 📋 AI Compliance Report")
-        st.markdown(explanation)
-
-        with st.expander("📖 Regulatory Reference Used"):
-            st.markdown(f"**Source:** {reg_source}")
-            st.markdown(f"*{regulation}*")
+        col_a, col_b, col_c = st.columns(3)
+        with col_a:
+            st.metric("Drug", case['generic_name'])
+            st.metric("Fraud Type", case['fraud_type'].replace('_', ' ').title())
+        with col_b:
+            st.metric("Total Claims", f"{int(case['total_claims']):,}")
+            st.metric("Total Cost", f"${float(case['total_cost']):,.2f}")
+        with col_c:
+            st.metric("Total Patients", f"{int(case['total_patients']):,}")
+            st.metric("Severity", get_severity(case['anomaly_score']))
 
         st.divider()
-        st.markdown("#### ⚖️ Compliance Officer Decision")
-        col_x, col_y, col_z = st.columns(3)
-        with col_x:
-            if st.button("✅ Mark as Legitimate", use_container_width=True):
-                st.success("Case marked as legitimate and closed.")
-        with col_y:
-            if st.button("⚠️ Escalate for Review", use_container_width=True):
-                st.warning("Case escalated to senior compliance officer.")
-        with col_z:
-            if st.button("🚫 Flag as Confirmed Fraud", use_container_width=True):
-                st.error("Case confirmed as fraud. Regulatory report initiated.")
+
+        if st.button("🤖 Generate AI Explanation", type="primary"):
+            with st.spinner("Analyzing case and retrieving regulatory references..."):
+                fraud_type = case['fraud_type']
+                drug = case['generic_name']
+                specialty = case['specialty']
+
+                if fraud_type == 'volume_fraud':
+                    query = f"abnormal high prescription volume reporting {drug}"
+                elif fraud_type == 'cost_fraud':
+                    query = f"fraud reimbursement cost pharmaceutical {drug}"
+                else:
+                    query = f"off-label prescription {drug} {specialty}"
+
+                regulation, reg_source = retrieve_regulation(query)
+                explanation = generate_explanation(case, regulation, reg_source)
+
+            st.success("Analysis complete!")
+
+            st.markdown("#### 📋 AI Compliance Report")
+            st.markdown(explanation)
+
+            with st.expander("📖 Regulatory Reference Used"):
+                st.markdown(f"**Source:** {reg_source}")
+                st.markdown(f"*{regulation}*")
+
+            st.divider()
+            st.markdown("#### ⚖️ Compliance Officer Decision")
+            col_x, col_y, col_z = st.columns(3)
+            with col_x:
+                if st.button("✅ Mark as Legitimate", use_container_width=True):
+                    st.success("Case marked as legitimate and closed.")
+            with col_y:
+                if st.button("⚠️ Escalate for Review", use_container_width=True):
+                    st.warning("Case escalated to senior compliance officer.")
+            with col_z:
+                if st.button("🚫 Flag as Confirmed Fraud", use_container_width=True):
+                    st.error("Case confirmed as fraud. Regulatory report initiated.")
