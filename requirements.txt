@@ -1,9 +1,28 @@
-streamlit
-pandas
-plotly
-groq
-faiss-cpu
-sentence-transformers
-scikit-learn
-numpy
-pypdf
+# Install with: pip install -r requirements.txt
+ 
+# Core data
+pandas==2.1.4
+numpy==1.26.4
+ 
+# Machine learning
+scikit-learn==1.4.0
+ 
+# RAG pipeline
+faiss-cpu==1.7.4
+sentence-transformers==2.3.1
+ 
+# PDF parsing
+pypdf==4.0.1
+ 
+# LLM / API
+groq==0.4.2
+ 
+# Dashboard
+streamlit==1.31.0
+plotly==5.18.0
+ 
+# DLP pipeline
+spacy==3.7.4
+ 
+# Environment
+python-dotenv==1.0.1
