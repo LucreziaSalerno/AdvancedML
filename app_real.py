@@ -6,6 +6,8 @@ import faiss
 import pickle
 import numpy as np
 from sentence_transformers import SentenceTransformer
+from dotenv import load_dotenv
+import os
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -37,8 +39,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── Groq client ───────────────────────────────────────────────────────────────
-GROQ_API_KEY = st.secrets["GROQ_API_KEY"]  
-client = Groq(api_key=GROQ_API_KEY)
+load_dotenv()
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # ── Load data and models ──────────────────────────────────────────────────────
 @st.cache_data
