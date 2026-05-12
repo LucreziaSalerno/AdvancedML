@@ -38,7 +38,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Groq client 
+
+
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 client = Groq(api_key=GROQ_API_KEY)
