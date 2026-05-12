@@ -9,14 +9,14 @@ from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 import os
 
-# ── Page config ───────────────────────────────────────────────────────────────
+# Page config 
 st.set_page_config(
     page_title="PharmaGuard AI",
     page_icon="🛡️",
     layout="wide"
 )
 
-# ── Custom CSS ────────────────────────────────────────────────────────────────
+# Custom CSS 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
@@ -38,11 +38,11 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ── Groq client ───────────────────────────────────────────────────────────────
+# Groq client 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-# ── Load data and models ──────────────────────────────────────────────────────
+# Load data and models
 @st.cache_data
 def load_data():
     df = pd.read_csv("pharmaguard_results.csv")
@@ -59,7 +59,7 @@ def load_rag():
 df = load_data()
 index, texts, sources, embedder = load_rag()
 
-# ── Core functions ────────────────────────────────────────────────────────────
+# Core functions 
 def retrieve_regulation(query, top_k=1):
     q_emb = embedder.encode([query]).astype('float32')
     distances, indices = index.search(q_emb, top_k)
@@ -107,7 +107,7 @@ def get_severity(score):
     else:
         return "🟢 Low"
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
+# Sidebar
 st.sidebar.title("🛡️ PharmaGuard AI")
 st.sidebar.markdown("*AI-Powered Pharmaceutical Fraud Detection*")
 st.sidebar.divider()
@@ -128,12 +128,12 @@ st.sidebar.metric("Total Records", f"{len(df):,}")
 st.sidebar.metric("Flagged Cases", f"{df['predicted_fraud'].sum():,}")
 st.sidebar.metric("Fraud Rate", f"{df['predicted_fraud'].mean()*100:.1f}%")
 
-# ── Main header ───────────────────────────────────────────────────────────────
+# Main header 
 st.title("🛡️ PharmaGuard AI — Compliance Dashboard")
 st.markdown("*Real-time pharmaceutical fraud detection powered by AI*")
 st.divider()
 
-# ── KPI metrics ───────────────────────────────────────────────────────────────
+# KPI metrics 
 flagged = df[df['predicted_fraud'] == 1]
 
 col1, col2, col3, col4 = st.columns(4)
@@ -151,7 +151,7 @@ with col4:
 
 st.divider()
 
-# ── Charts ────────────────────────────────────────────────────────────────────
+# Charts 
 col_left, col_right = st.columns(2)
 
 with col_left:
@@ -185,7 +185,7 @@ with col_right:
 
 st.divider()
 
-# ── Flagged cases table ───────────────────────────────────────────────────────
+# Flagged cases table 
 st.subheader("🚨 Flagged Cases — Human Review Queue")
 
 filtered = flagged[flagged['fraud_type'].isin(fraud_filter)].copy()
@@ -226,7 +226,7 @@ st.dataframe(
 
 st.divider()
 
-# ── Case deep dive ────────────────────────────────────────────────────────────
+# Case deep dive
 st.subheader("🔍 Case Deep Dive — AI Explanation")
 
 if len(filtered) == 0:
