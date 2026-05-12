@@ -41,6 +41,7 @@ st.markdown("""
 # Groq client 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY)
 
 # Load data and models
 @st.cache_data
