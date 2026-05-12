@@ -277,14 +277,34 @@ else:
                 st.markdown(f"*{regulation}*")
 
             st.divider()
-            st.markdown("#### ⚖️ Compliance Officer Decision")
-            col_x, col_y, col_z = st.columns(3)
-            with col_x:
-                if st.button("✅ Mark as Legitimate", use_container_width=True):
-                    st.success("Case marked as legitimate and closed.")
-            with col_y:
-                if st.button("⚠️ Escalate for Review", use_container_width=True):
-                    st.warning("Case escalated to senior compliance officer.")
-            with col_z:
-                if st.button("🚫 Flag as Confirmed Fraud", use_container_width=True):
-                    st.error("Case confirmed as fraud. Regulatory report initiated.")
+st.markdown("#### ⚖️ Compliance Officer Decision")
+st.caption("Complete both fields below before recording your decision. Your independent judgement is required — AI outputs are advisory only.")
+
+violation_type = st.selectbox(
+    "Select violation type *",
+    ["-- Select --", "Off-Label Use", "Volume Fraud", "Reimbursement Fraud", "Insufficient Evidence"]
+)
+
+justification = st.text_area(
+    "Justification (minimum 10 words) *",
+    placeholder="Describe your independent assessment of this case..."
+)
+
+word_count = len(justification.strip().split()) if justification.strip() else 0
+st.caption(f"{word_count}/10 words minimum")
+
+form_complete = (violation_type != "-- Select --") and (word_count >= 10)
+
+if not form_complete:
+    st.info("Select a violation type and write at least 10 words of justification to enable decision buttons.")
+
+col_x, col_y, col_z = st.columns(3)
+with col_x:
+    if st.button("✅ Mark as Legitimate", use_container_width=True, disabled=not form_complete):
+        st.success("Case marked as legitimate and closed.")
+with col_y:
+    if st.button("⚠️ Escalate for Review", use_container_width=True, disabled=not form_complete):
+        st.warning("Case escalated to senior compliance officer.")
+with col_z:
+    if st.button("🚫 Flag as Confirmed Fraud", use_container_width=True, disabled=not form_complete):
+        st.error("Case confirmed as fraud. Regulatory report initiated.")
