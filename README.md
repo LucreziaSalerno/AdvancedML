@@ -6,6 +6,39 @@ This project was developed as part of the Advanced Topics in Machine Learning co
 - Giacomo Castiglioni
 - Lucrezia Salerno
 
+## API Key Setup
+
+PharmaGuard AI uses the Groq API to power the LLM explanation layer 
+(Stage 3 of the pipeline). In accordance with standard security practices 
+for API credential management, the API key is not included in this 
+repository. Each user is required to provision their own free Groq API key, 
+which takes approximately two minutes and requires no credit card.
+
+This approach reflects the same credential isolation principle that 
+PharmaGuard AI enforces in its production architecture: sensitive 
+configuration parameters are never stored in version-controlled codebases.
+
+### Setup Instructions
+
+1. Clone the repository
+bashgit clone https://github.com/LucreziaSalerno/AdvancedML.git
+cd AdvancedML
+
+2. Copy the example environment file:
+cp .env.example .env
+
+3. Obtain a free Groq API key at https://console.groq.com  
+   (Login → API Keys → Create API Key — no credit card required)
+
+4. Open `.env` and replace the placeholder with your key:
+GROQ_API_KEY=gsk_your_actual_key_here
+
+5. Install the required dipendencies:
+pip install -r requirements.txt
+
+6. Run the application:
+streamlit run app_real.py
+
 PharmaGuard AI
 AI-Powered Pharmaceutical Fraud Detection
 Nova School of Business and Economics — 2758-T4 Advanced Topics in Machine Learning
@@ -64,24 +97,6 @@ AdvancedML/
 ├── .gitignore
 └── README.md
 
-Setup
-1. Clone the repository
-bashgit clone https://github.com/LucreziaSalerno/AdvancedML.git
-cd AdvancedML
-2. Install dependencies
-bashpip install -r requirements.txt
-Install spaCy language model separately:
-bashpython -m spacy download en_core_web_sm
-3. Set up your Groq API key
-Create a free account at console.groq.com and generate an API key.
-Create a .env file in the project root:
-GROQ_API_KEY=your_groq_api_key_here
-
-The .env file is in .gitignore and is never committed to git.
-
-4. Run the dashboard
-bashstreamlit run app.py
-The dashboard reads pre-calculated anomaly scores and explanations from CSV files — no live model inference required. The "Generate AI Explanation" button in the Case Deep Dive section calls Groq live and requires a valid API key.
 
 Running the Full Pipeline
 Run notebooks in order if you want to reproduce results from scratch:
